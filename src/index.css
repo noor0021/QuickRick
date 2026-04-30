@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background-color: white;
+  color: black;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #333;
+}
+
+.glass {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Leaflet Map Overrides */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #0A0A0A !important;
+}
+
+.leaflet-tile {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+}
+
+.leaflet-control-zoom-in, .leaflet-control-zoom-out {
+  background: #1A1A1A !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(0,0,0,0.5) !important;
+  color: #666 !important;
+}
+
+/* Pulse animation for demand dots */
+@keyframes demand-pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.5); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.demand-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+  animation: demand-pulse 2s infinite;
+}
+
+.auto-dot {
+  width: 14px;
+  height: 14px;
+  background-color: #FFB800;
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(255, 184, 0, 0.8);
+  transform: rotate(45deg);
+}
