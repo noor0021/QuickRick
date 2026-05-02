@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSim } from '../context/SimContext';
 import { motion } from 'framer-motion';
-import { ChevronRight, Phone, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
 
 const Login = () => {
   const { login } = useSim();
@@ -17,75 +17,92 @@ const Login = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-[3000] bg-white text-black flex flex-col">
-      <div className="p-6">
-        {step === 2 && (
-          <button onClick={() => setStep(1)} className="mb-8">
-            <ArrowLeft size={24} />
-          </button>
-        )}
-        
-        <div className="mt-12 mb-12">
-          <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center mb-6">
-            <span className="text-white text-2xl font-bold">Q</span>
-          </div>
-          <h1 className="text-2xl font-semibold mb-2">
-            {step === 1 ? "Enter your mobile number" : "Enter the 4-digit code"}
-          </h1>
-          <p className="text-gray-500 text-sm">
-            {step === 1 
-              ? "We'll send a code to verify your phone" 
-              : `Sent to +91 ${phone}`}
-          </p>
-        </div>
-
-        <div className="relative">
-          {step === 1 ? (
-            <div className="flex items-center gap-4 border-b-2 border-gray-100 pb-2 focus-within:border-black transition-colors">
-              <div className="flex items-center gap-2 font-medium">
-                <img src="https://flagcdn.com/w20/in.png" alt="IN" className="w-5" />
-                <span>+91</span>
-              </div>
-              <input
-                autoFocus
-                type="tel"
-                placeholder="00000 00000"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="flex-1 text-xl outline-none"
-                maxLength={10}
-              />
-            </div>
-          ) : (
-            <div className="flex gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <input
-                  key={i}
-                  autoFocus={i === 1}
-                  type="text"
-                  maxLength={1}
-                  className="w-12 h-14 bg-gray-100 rounded-lg text-center text-2xl font-semibold focus:bg-gray-200 outline-none transition-colors"
-                  placeholder="•"
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-auto p-6 flex justify-between items-center bg-gray-50 border-t border-gray-100">
-        <p className="text-[10px] text-gray-400 max-w-[200px]">
-          By proceeding, you consent to get calls, WhatsApp or SMS messages, including by automated means, from QuickRick and its affiliates to the number provided.
-        </p>
-        <button
-          onClick={handleNext}
-          disabled={step === 1 && phone.length < 10}
-          className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
-            phone.length >= 10 ? 'bg-black text-white shadow-xl scale-110' : 'bg-gray-200 text-gray-400'
-          }`}
+    <div className="fixed inset-0 z-[3000] bg-white text-black flex flex-col items-center justify-center">
+      <div className="w-full max-w-md px-8 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full"
         >
-          <ChevronRight size={28} />
-        </button>
+          {step === 2 && (
+            <button onClick={() => setStep(1)} className="mb-10 hover:bg-gray-100 p-2 -ml-2 rounded-full transition-colors">
+              <ArrowLeft size={24} />
+            </button>
+          )}
+          
+          <div className="mb-12">
+            <div className="text-3xl font-bold tracking-tighter mb-8">QuickRick</div>
+            <h1 className="text-2xl font-medium mb-3">
+              {step === 1 ? "What's your phone number?" : "Enter the code sent to your phone"}
+            </h1>
+            <p className="text-gray-500">
+              {step === 1 
+                ? "Login or create an account with your phone number." 
+                : `We've sent a 4-digit code to +91 ${phone}`}
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {step === 1 ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 bg-gray-100 p-4 rounded-lg focus-within:bg-white focus-within:ring-2 focus-within:ring-black transition-all">
+                  <div className="flex items-center gap-2 font-semibold">
+                    <img src="https://flagcdn.com/w20/in.png" alt="IN" className="w-5" />
+                    <span>+91</span>
+                  </div>
+                  <input
+                    autoFocus
+                    type="tel"
+                    placeholder="00000 00000"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="flex-1 bg-transparent text-lg outline-none"
+                    maxLength={10}
+                  />
+                </div>
+                <button
+                  onClick={handleNext}
+                  disabled={phone.length < 10}
+                  className={`w-full py-4 rounded-lg font-bold text-lg transition-all ${
+                    phone.length >= 10 ? 'bg-black text-white hover:bg-zinc-800' : 'bg-gray-100 text-gray-400'
+                  }`}
+                >
+                  Continue
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                <div className="flex gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <input
+                      key={i}
+                      autoFocus={i === 1}
+                      type="text"
+                      maxLength={1}
+                      className="w-full h-16 bg-gray-100 rounded-lg text-center text-3xl font-bold focus:bg-white focus:ring-2 focus:ring-black outline-none transition-all"
+                      placeholder="•"
+                    />
+                  ))}
+                </div>
+                <div className="flex flex-col gap-4">
+                  <button
+                    onClick={handleNext}
+                    className="w-full bg-black text-white py-4 rounded-lg font-bold text-lg hover:bg-zinc-800 transition-all"
+                  >
+                    Verify and login
+                  </button>
+                  <button className="text-sm font-bold text-gray-500 hover:text-black self-start">
+                    Resend code in 00:30
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-16 text-xs text-gray-400 leading-relaxed">
+            By proceeding, you consent to get calls, WhatsApp or SMS messages, including by automated means, from QuickRick and its affiliates to the number provided.
+          </div>
+        </motion.div>
       </div>
     </div>
   );

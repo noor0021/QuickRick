@@ -1,65 +1,65 @@
 import React from 'react';
 import { useSim } from '../context/SimContext';
-import { Menu, User, LogOut } from 'lucide-react';
+import { Menu, User, LogOut, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Header = () => {
-  const { viewMode, setViewMode, logout } = useSim();
+  const { viewMode, setViewMode, logout, user } = useSim();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[1000] p-4 flex justify-between items-center pointer-events-none">
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="pointer-events-auto"
-      >
-        <button className="bg-white p-3 rounded-full shadow-lg border border-gray-100 text-black">
-          <Menu size={24} />
-        </button>
-      </motion.div>
+    <header className="fixed top-0 left-0 right-0 z-[1000] bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center shadow-sm">
+      <div className="flex items-center gap-8">
+        {/* Logo */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-2xl font-bold tracking-tighter"
+        >
+          QuickRick
+        </motion.div>
 
-      {/* Mode Toggle - Integrated into header */}
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="bg-gray-100/80 backdrop-blur-md p-1 rounded-full flex gap-1 pointer-events-auto shadow-sm border border-white/20"
-      >
-        <button
-          onClick={() => setViewMode('passenger')}
-          className={`px-6 py-1.5 rounded-full text-xs font-bold transition-all ${
-            viewMode === 'passenger' 
-              ? 'bg-white text-black shadow-sm' 
-              : 'text-gray-500'
-          }`}
-        >
-          Ride
-        </button>
-        <button
-          onClick={() => setViewMode('driver')}
-          className={`px-6 py-1.5 rounded-full text-xs font-bold transition-all ${
-            viewMode === 'driver' 
-              ? 'bg-white text-black shadow-sm' 
-              : 'text-gray-500'
-          }`}
-        >
-          Drive
-        </button>
-      </motion.div>
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-6">
+          <button 
+            onClick={() => setViewMode('passenger')}
+            className={`text-sm font-medium transition-colors ${viewMode === 'passenger' ? 'text-black' : 'text-gray-500 hover:text-black'}`}
+          >
+            Ride
+          </button>
+          <button 
+            onClick={() => setViewMode('driver')}
+            className={`text-sm font-medium transition-colors ${viewMode === 'driver' ? 'text-black' : 'text-gray-500 hover:text-black'}`}
+          >
+            Drive
+          </button>
+          <button className="text-sm font-medium text-gray-500 hover:text-black transition-colors">About</button>
+        </nav>
+      </div>
 
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="pointer-events-auto flex gap-2"
-      >
-        <button 
-          onClick={logout}
-          className="bg-white p-3 rounded-full shadow-lg border border-gray-100 text-black hover:text-red-500 transition-colors"
+      <div className="flex items-center gap-4">
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="flex items-center gap-4"
         >
-          <LogOut size={20} />
-        </button>
-      </motion.div>
+          <button className="hidden sm:flex items-center gap-1 text-sm font-medium text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-full transition-colors">
+            <User size={18} />
+            <span>{user?.phone || 'Account'}</span>
+            <ChevronDown size={14} />
+          </button>
+          
+          <button 
+            onClick={logout}
+            className="bg-black text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-zinc-800 transition-colors shadow-sm"
+          >
+            Sign out
+          </button>
+
+          <button className="md:hidden p-2 text-black">
+            <Menu size={24} />
+          </button>
+        </motion.div>
+      </div>
     </header>
   );
 };

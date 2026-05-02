@@ -7,7 +7,7 @@ const containerStyle = {
   height: '100%'
 };
 
-// Night mode style for Google Maps
+// Uber-style Silver map mode
 const mapStyles = [
   { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
   { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
@@ -32,10 +32,9 @@ const mapStyles = [
 const MyGoogleMap = () => {
   const { userLocation, autos, demands, viewMode } = useSim();
   
-  // NOTE: Replace 'YOUR_GOOGLE_MAPS_API_KEY' with a real key
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "" 
+    googleMapsApiKey: "" // Use your API key here
   });
 
   const [map, setMap] = useState(null);
@@ -48,7 +47,7 @@ const MyGoogleMap = () => {
     setMap(null);
   }, []);
 
-  if (!isLoaded) return <div className="w-full h-full bg-gray-100 animate-pulse"></div>;
+  if (!isLoaded) return <div className="w-full h-full bg-gray-50 animate-pulse flex items-center justify-center text-gray-400 font-medium">Loading Map...</div>;
 
   return (
     <GoogleMap
@@ -61,18 +60,20 @@ const MyGoogleMap = () => {
         styles: mapStyles,
         disableDefaultUI: true,
         zoomControl: false,
+        clickableIcons: false,
       }}
     >
-      {/* User Location Marker */}
+      {/* User Location Marker - Uber Blue Pulsing effect can be added but let's stick to a clean black dot */}
       <Marker
         position={userLocation}
         icon={{
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 7,
-          fillColor: "#000",
+          path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+          fillColor: "#000000",
           fillOpacity: 1,
           strokeWeight: 2,
-          strokeColor: "#fff",
+          strokeColor: "#ffffff",
+          scale: 1.5,
+          anchor: new window.google.maps.Point(12, 24),
         }}
       />
 
@@ -82,8 +83,9 @@ const MyGoogleMap = () => {
           key={auto.id}
           position={auto.position}
           icon={{
-            url: 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png', // Rickshaw icon
-            scaledSize: new window.google.maps.Size(24, 24),
+            url: 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png', // Keep the rickshaw icon but scale better
+            scaledSize: new window.google.maps.Size(32, 32),
+            anchor: new window.google.maps.Point(16, 16),
             rotation: auto.heading
           }}
         />
@@ -96,10 +98,11 @@ const MyGoogleMap = () => {
           position={demand.position}
           icon={{
             path: window.google.maps.SymbolPath.CIRCLE,
-            scale: 6,
-            fillColor: "#f00",
-            fillOpacity: 0.8,
-            strokeWeight: 0,
+            scale: 8,
+            fillColor: "#276EF1", // Uber Blue for pickup points
+            fillOpacity: 0.9,
+            strokeWeight: 3,
+            strokeColor: "#ffffff",
           }}
         />
       ))}

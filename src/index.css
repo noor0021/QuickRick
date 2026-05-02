@@ -1,96 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  --uber-black: #000000;
+  --uber-white: #FFFFFF;
+  --uber-gray-50: #F6F6F6;
+  --uber-gray-100: #EEEEEE;
+  --uber-gray-200: #E2E2E2;
+  --uber-gray-500: #6B6B6B;
+  --uber-blue: #276EF1;
+}
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
-  overflow-x: hidden;
-  background-color: white;
-  color: black;
+  overflow: hidden;
+  background-color: var(--uber-white);
+  color: var(--uber-black);
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Uber style */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: var(--uber-gray-200);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: var(--uber-gray-500);
 }
 
-.glass {
-  background: rgba(26, 26, 26, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* UI Components */
+.uber-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.glass-dark {
-  background: rgba(10, 10, 10, 0.8);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.uber-input {
+  background: var(--uber-gray-50);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
 }
 
-/* Leaflet Map Overrides */
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  background: #0A0A0A !important;
+.uber-input:focus {
+  background: var(--uber-white);
+  border-color: var(--uber-black);
+  outline: none;
 }
 
-.leaflet-tile {
-  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+.uber-btn-primary {
+  background: var(--uber-black);
+  color: white;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-.leaflet-control-zoom {
-  border: none !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+.uber-btn-primary:hover {
+  background: #333333;
 }
 
-.leaflet-control-zoom-in, .leaflet-control-zoom-out {
-  background: #1A1A1A !important;
-  color: white !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+.uber-btn-secondary {
+  background: var(--uber-gray-100);
+  color: var(--uber-black);
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-.leaflet-control-attribution {
-  background: rgba(0,0,0,0.5) !important;
-  color: #666 !important;
+/* Animations */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
-/* Pulse animation for demand dots */
-@keyframes demand-pulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.5); opacity: 0.4; }
-  100% { transform: scale(1); opacity: 0.8; }
+.animate-slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.demand-dot {
-  width: 12px;
-  height: 12px;
-  background-color: #ef4444;
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
-  animation: demand-pulse 2s infinite;
+/* Map specific overrides */
+.gm-style-iw-c {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
-.auto-dot {
-  width: 14px;
-  height: 14px;
-  background-color: #FFB800;
-  border-radius: 3px;
-  box-shadow: 0 0 10px rgba(255, 184, 0, 0.8);
-  transform: rotate(45deg);
+.gm-style-iw-d {
+  overflow: hidden !important;
+}
+
+.gm-ui-hover-effect {
+  display: none !important;
 }

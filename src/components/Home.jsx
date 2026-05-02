@@ -2,167 +2,220 @@ import React, { useState } from 'react';
 import { useSim } from '../context/SimContext';
 import GoogleMap from './GoogleMap';
 import Header from './Header';
-import Controls from './Controls';
-import { Search, Clock, Home as HomeIcon, Briefcase, MapPin, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Search, Clock, Home as HomeIcon, Briefcase, MapPin, ChevronRight, ArrowLeft, Info, Calendar, CreditCard, ChevronDown, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Home = () => {
-  const { viewMode } = useSim();
+  const { viewMode, userLocation } = useSim();
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedRide, setSelectedRide] = useState('auto');
+  const [destination, setDestination] = useState('');
+
+  const rideTypes = [
+    { id: 'auto', name: 'QuickRick', price: '₹45', time: '2 min', icon: '🛺', desc: 'Affordable rickshaw rides' },
+    { id: 'premier', name: 'RickPremier', price: '₹75', time: '4 min', icon: '✨', desc: 'Top-rated drivers & newer vehicles' },
+    { id: 'intercity', name: 'Intercity', price: '₹450', time: '10 min', icon: '🏙️', desc: 'Travel between cities' }
+  ];
 
   return (
-    <div className="relative h-full w-full flex flex-col bg-white">
-      {/* Header - Always on top */}
+    <div className="relative h-full w-full flex flex-col bg-white overflow-hidden">
+      {/* Header */}
       <Header />
 
-      {/* Map Layer - Behind UI */}
-      <div className={`absolute inset-0 z-0 transition-all duration-500 ${isSearching ? 'opacity-20' : 'opacity-100'}`}>
-        <GoogleMap />
-      </div>
-
-      {/* Main UI Overlay */}
-      <div className="relative z-10 flex flex-col h-full pointer-events-none">
-        
-        {/* Top Spacer to push content down */}
-        <div className="flex-1"></div>
-
-        {/* Home Screen Content */}
-        <AnimatePresence mode="wait">
-          {!isSearching ? (
-            <motion.div
-              key="default-home"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
-              className="p-4 space-y-4 pointer-events-auto"
-            >
-              {/* Quick Actions Card */}
-              <div className="bg-white rounded-[2rem] shadow-[0_-10px_30px_rgba(0,0,0,0.1)] p-6 space-y-6">
-                
-                {/* Search Bar */}
-                <button 
-                  onClick={() => setIsSearching(true)}
-                  className="w-full bg-gray-100 h-14 rounded-full flex items-center px-5 gap-3 hover:bg-gray-200 transition-colors"
-                >
-                  <Search size={20} className="text-black" />
-                  <span className="text-xl font-medium text-gray-700">Where to?</span>
-                  <div className="ml-auto flex items-center gap-2 bg-white px-3 py-1.5 rounded-full shadow-sm text-sm">
-                    <Clock size={14} />
-                    <span>Now</span>
-                  </div>
-                </button>
-
-                {/* Categories */}
-                <div className="flex justify-between items-center px-2">
-                  {[
-                    { label: 'Ride', icon: '🚗', color: 'bg-blue-50' },
-                    { label: 'Package', icon: '📦', color: 'bg-green-50' },
-                    { label: 'Intercity', icon: '🏙️', color: 'bg-orange-50' },
-                    { label: 'Reserve', icon: '🗓️', color: 'bg-purple-50' }
-                  ].map((cat, i) => (
-                    <div key={i} className="flex flex-col items-center gap-2">
-                      <div className={`${cat.color} w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-sm hover:scale-105 transition-transform cursor-pointer`}>
-                        {cat.icon}
+      <main className="flex-1 flex flex-col md:flex-row relative mt-[73px]">
+        {/* Sidebar - Desktop / Bottom Sheet - Mobile */}
+        <div className="w-full md:w-[400px] lg:w-[450px] bg-white z-20 flex flex-col shadow-2xl relative">
+          <AnimatePresence mode="wait">
+            {!isSearching ? (
+              <motion.div
+                key="default-home"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="flex-1 flex flex-col"
+              >
+                <div className="p-6 space-y-8 overflow-y-auto flex-1">
+                  <h1 className="text-4xl font-bold tracking-tight">Go anywhere with QuickRick</h1>
+                  
+                  {/* Search Interaction */}
+                  <div className="space-y-4">
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                        <div className="w-2.5 h-2.5 bg-black rounded-full"></div>
                       </div>
-                      <span className="text-xs font-semibold">{cat.label}</span>
+                      <input 
+                        className="w-full bg-gray-100 h-14 rounded-lg pl-12 pr-4 font-medium text-lg focus:bg-white border-2 border-transparent focus:border-black transition-all outline-none"
+                        placeholder="Enter pickup location"
+                        defaultValue="Current Location"
+                      />
                     </div>
+
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                        <div className="w-2.5 h-2.5 bg-black"></div>
+                      </div>
+                      <input 
+                        onFocus={() => setIsSearching(true)}
+                        className="w-full bg-gray-100 h-14 rounded-lg pl-12 pr-4 font-medium text-lg focus:bg-white border-2 border-transparent focus:border-black transition-all outline-none"
+                        placeholder="Where to?"
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quick Shortcuts */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <button className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left">
+                      <div className="bg-white p-2 rounded-full shadow-sm"><HomeIcon size={20} /></div>
+                      <div>
+                        <div className="font-bold text-sm">Home</div>
+                        <div className="text-xs text-gray-500">Add home</div>
+                      </div>
+                    </button>
+                    <button className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left">
+                      <div className="bg-white p-2 rounded-full shadow-sm"><Briefcase size={20} /></div>
+                      <div>
+                        <div className="font-bold text-sm">Work</div>
+                        <div className="text-xs text-gray-500">Add work</div>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Ride Suggestions */}
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-bold">Suggestions</h2>
+                    <div className="grid grid-cols-3 gap-3">
+                      {rideTypes.map(ride => (
+                        <button 
+                          key={ride.id}
+                          onClick={() => {
+                            setSelectedRide(ride.id);
+                            setIsSearching(true);
+                          }}
+                          className="flex flex-col items-center gap-2 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all border-2 border-transparent hover:border-gray-200"
+                        >
+                          <span className="text-3xl">{ride.icon}</span>
+                          <span className="text-xs font-bold">{ride.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Call to Action */}
+                <div className="p-6 border-t border-gray-100 bg-white">
+                   <button className="w-full bg-black text-white py-4 rounded-xl text-lg font-bold hover:bg-zinc-800 transition-all">
+                     See all rides
+                   </button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="search-view"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="flex-1 flex flex-col h-full"
+              >
+                {/* Search Header */}
+                <div className="p-6 border-b border-gray-100">
+                  <div className="flex items-center gap-4 mb-6">
+                    <button onClick={() => setIsSearching(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                      <ArrowLeft size={24} />
+                    </button>
+                    <h2 className="text-2xl font-bold">Choose a ride</h2>
+                  </div>
+
+                  <div className="space-y-3 relative">
+                    <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-gray-200"></div>
+                    <div className="flex items-center gap-4 pl-4 pr-2 py-3 bg-gray-50 rounded-lg">
+                      <div className="w-2.5 h-2.5 bg-gray-400 rounded-full shrink-0"></div>
+                      <span className="font-medium text-gray-600 truncate">Current Location</span>
+                    </div>
+                    <div className="flex items-center gap-4 pl-4 pr-2 py-3 bg-white border-2 border-black rounded-lg">
+                      <div className="w-2.5 h-2.5 bg-black shrink-0"></div>
+                      <input 
+                        className="font-medium outline-none w-full" 
+                        placeholder="Where to?" 
+                        autoFocus
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ride Selection List */}
+                <div className="flex-1 overflow-y-auto p-2">
+                  <div className="px-4 py-3 flex justify-between items-center text-sm font-bold text-gray-500 uppercase tracking-widest">
+                    <span>Available Rides</span>
+                    <Info size={16} />
+                  </div>
+                  
+                  {rideTypes.map(ride => (
+                    <button 
+                      key={ride.id}
+                      onClick={() => setSelectedRide(ride.id)}
+                      className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all mb-2 ${selectedRide === ride.id ? 'bg-gray-100 ring-2 ring-black' : 'hover:bg-gray-50'}`}
+                    >
+                      <div className="text-4xl w-16 h-16 flex items-center justify-center bg-white rounded-lg shadow-sm">
+                        {ride.icon}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-lg">{ride.name}</span>
+                          <User size={14} className="text-gray-400" />
+                          <span className="text-xs text-gray-400 font-bold">1-3</span>
+                        </div>
+                        <div className="text-sm text-gray-500">{ride.time} dropoff</div>
+                        <div className="text-xs text-gray-400">{ride.desc}</div>
+                      </div>
+                      <div className="text-xl font-bold">{ride.price}</div>
+                    </button>
                   ))}
                 </div>
 
-                {/* Suggestions */}
-                <div className="space-y-4 pt-2 border-t border-gray-100">
-                  <div className="flex items-center gap-4 cursor-pointer hover:bg-gray-50 p-2 rounded-xl">
-                    <div className="bg-blue-100 p-2 rounded-full text-blue-600">
-                      <HomeIcon size={18} />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm">Home</h4>
-                      <p className="text-xs text-gray-500">Koramangala 4th Block</p>
-                    </div>
-                    <div className="ml-auto text-gray-300">
-                      <ChevronRight size={16} />
-                    </div>
+                {/* Payment & Action */}
+                <div className="p-6 bg-white border-t border-gray-100 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <button className="flex items-center gap-2 text-sm font-bold hover:bg-gray-100 px-3 py-2 rounded-full transition-colors">
+                      <CreditCard size={18} />
+                      <span>Personal •••• 4242</span>
+                      <ChevronDown size={14} />
+                    </button>
+                    <button className="flex items-center gap-2 text-sm font-bold hover:bg-gray-100 px-3 py-2 rounded-full transition-colors">
+                      <span>Schedule</span>
+                      <Calendar size={18} />
+                    </button>
                   </div>
-                  <div className="flex items-center gap-4 cursor-pointer hover:bg-gray-50 p-2 rounded-xl">
-                    <div className="bg-gray-100 p-2 rounded-full text-gray-600">
-                      <Briefcase size={18} />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm">Work</h4>
-                      <p className="text-xs text-gray-500">RMZ Ecoworld, Outer Ring Road</p>
-                    </div>
-                    <div className="ml-auto text-gray-300">
-                      <ChevronRight size={16} />
-                    </div>
-                  </div>
+                  
+                  <button 
+                    className="w-full bg-black text-white py-4 rounded-xl text-xl font-bold hover:bg-zinc-800 transition-all active:scale-[0.98]"
+                    onClick={() => alert(`Booking ${selectedRide} to ${destination || 'selected destination'}...`)}
+                  >
+                    Confirm {rideTypes.find(r => r.id === selectedRide)?.name}
+                  </button>
                 </div>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="search-view"
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
-              className="absolute inset-0 bg-white z-[100] p-6 pointer-events-auto"
-            >
-              <div className="flex items-center gap-4 mb-8">
-                <button onClick={() => setIsSearching(false)} className="p-2 -ml-2">
-                  <ArrowLeft size={24} />
-                </button>
-                <h2 className="text-xl font-bold">Plan your ride</h2>
-              </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-              <div className="space-y-4 relative">
-                <div className="absolute left-4 top-5 bottom-5 w-0.5 bg-gray-200 z-0"></div>
-                
-                <div className="flex items-center gap-4 bg-gray-100 p-4 rounded-xl relative z-10">
-                  <div className="w-2.5 h-2.5 bg-gray-400 rounded-full"></div>
-                  <input 
-                    className="bg-transparent flex-1 outline-none font-medium" 
-                    defaultValue="Current Location" 
-                  />
-                </div>
-
-                <div className="flex items-center gap-4 bg-gray-100 p-4 rounded-xl relative z-10 border-2 border-black">
-                  <div className="w-2.5 h-2.5 bg-black"></div>
-                  <input 
-                    autoFocus
-                    className="bg-transparent flex-1 outline-none font-medium" 
-                    placeholder="Where to?" 
-                  />
-                </div>
-              </div>
-
-              <div className="mt-8 space-y-6">
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Recent Places</h3>
-                {[
-                  { name: 'Indiranagar Metro Station', sub: 'Binnamangala, Stage 1' },
-                  { name: 'Phoenix Marketcity', sub: 'Whitefield Main Road' },
-                  { name: 'Kempegowda Airport', sub: 'Devanahalli, Bengaluru' }
-                ].map((place, i) => (
-                  <div key={i} className="flex items-center gap-4 cursor-pointer">
-                    <div className="bg-gray-100 p-2 rounded-full">
-                      <MapPin size={20} className="text-gray-600" />
-                    </div>
-                    <div className="border-b border-gray-100 flex-1 pb-4">
-                      <h4 className="font-semibold text-sm">{place.name}</h4>
-                      <p className="text-xs text-gray-500">{place.sub}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Original Controls (Signal Demand) - Only shown if not searching and in Passenger mode */}
-        {!isSearching && <Controls />}
-      </div>
+        {/* Map Container */}
+        <div className="flex-1 h-full relative">
+          <GoogleMap />
+          
+          {/* Floating UI Elements on Map */}
+          <div className="absolute top-6 right-6 flex flex-col gap-2">
+            <button className="bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 transition-colors">
+              <MapPin size={20} />
+            </button>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
-
-// Removed internal component definitions
 
 export default Home;
