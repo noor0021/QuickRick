@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client'
 import { MapContainer, CircleMarker, Popup, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import './styles.css'
+import RoleSelectorPage from '../role-selector.jsx'
+import DriverDetailsPage from '../driver-details.jsx'
+import PassengerDetailsPage from '../passenger-details.jsx'
 
 const demoOtp = '123456'
 
@@ -363,8 +366,42 @@ function AuthFlow() {
   )
 }
 
+function AppRouter() {
+  const getRoute = React.useCallback(() => {
+    const hashPath = window.location.hash.replace('#', '')
+    return hashPath || window.location.pathname
+  }, [])
+
+  const [route, setRoute] = React.useState(getRoute)
+
+  React.useEffect(() => {
+    function handleRouteChange() {
+      setRoute(getRoute())
+    }
+
+    window.addEventListener('hashchange', handleRouteChange)
+    return () => {
+      window.removeEventListener('hashchange', handleRouteChange)
+    }
+  }, [getRoute])
+
+  if (route === '/role-selector') {
+    return <RoleSelectorPage />
+  }
+
+  if (route === '/driver-details') {
+    return <DriverDetailsPage />
+  }
+
+  if (route === '/passenger-details') {
+    return <PassengerDetailsPage />
+  }
+
+  return <AuthFlow />
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthFlow />
+    <AppRouter />
   </React.StrictMode>
 )
