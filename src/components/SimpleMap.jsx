@@ -1,17 +1,39 @@
-// Map dikhane wala component — Leaflet use karta hai
+// ───────────────────────────────────────────
+// 🗺️ COMPONENT — SIMPLE MAP
+// ───────────────────────────────────────────
+// Yeh Leaflet library se map dikhata hai.
+// Signal ON ho toh yellow circle bhi dikhata hai.
+
 import React from 'react';
 import { MapContainer, TileLayer, Marker, Circle } from 'react-leaflet';
+import { MAP_CENTER, MAP_ZOOM, SIGNAL_RADIUS, SIGNAL_COLOR, SIGNAL_OPACITY } from '../config';
 
-export default function SimpleMap({ isSignaling }) {
-  const center = [28.6139, 77.209]; // Delhi ke coordinates
+function SimpleMap({ isSignaling }) {
 
   return (
-    <MapContainer center={center} zoom={15} className="map-frame">
+    <MapContainer center={MAP_CENTER} zoom={MAP_ZOOM} className="map-frame">
+
+      {/* Internet se map ki photo laata hai */}
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <Marker position={center} />
-      {isSignaling && (
-        <Circle center={center} radius={200} pathOptions={{ fillColor: '#eab308', color: '#eab308', fillOpacity: 0.3 }} />
-      )}
+
+      {/* Map pe ek pin */}
+      <Marker position={MAP_CENTER} />
+
+      {/* Agar signal ON hai toh yellow circle dikhao */}
+      {isSignaling ? (
+        <Circle
+          center={MAP_CENTER}
+          radius={SIGNAL_RADIUS}
+          pathOptions={{
+            fillColor: SIGNAL_COLOR,
+            color: SIGNAL_COLOR,
+            fillOpacity: SIGNAL_OPACITY
+          }}
+        />
+      ) : null}
+
     </MapContainer>
   );
 }
+
+export default SimpleMap;

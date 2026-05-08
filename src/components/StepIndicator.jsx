@@ -1,18 +1,54 @@
-// Progress dots dikhane wala component (jaise Step 1, 2, 3...)
-import React from 'react';
+// ───────────────────────────────────────────
+// 🔘 COMPONENT — STEP INDICATOR (Progress Dots)
+// ───────────────────────────────────────────
+// Yeh upar gol-gol circles banata hai — Step 1, 2, 3...
+// Jo step ho chuka = green tick (✓)
+// Jo step abhi chal raha = yellow glow
+// Jo step baaki hai = grey number
 
-export default function StepIndicator({ current, total }) {
-  // Array.from se seedha array ban jayega — koi loop nahi chahiye
+import React from 'react';
+import { DONE_SYMBOL } from '../config';
+
+function StepIndicator({ current, total }) {
+
+  // Ek khaali list banao — isme circles store honge
+  var circles = [];
+
+  // Loop — 0 se total tak (jaise 0, 1, 2, 3)
+  for (var i = 0; i < total; i++) {
+
+    // ─── CSS CLASS DECIDE KARO ───
+    var className = "step-dot";       // Default: grey
+
+    if (i < current) {
+      className = "step-dot done";    // Purana step: green
+    }
+
+    if (i === current) {
+      className = "step-dot active";  // Current step: yellow glow
+    }
+
+    // ─── CIRCLE KE ANDAR KYA LIKHNA HAI ───
+    var text = i + 1;                 // Default: number (1, 2, 3...)
+
+    if (i < current) {
+      text = DONE_SYMBOL;            // Purana step: tick mark (✓)
+    }
+
+    // ─── CIRCLE BANAO AUR LIST MEIN DAALO ───
+    circles.push(
+      <div key={i} className={className}>
+        {text}
+      </div>
+    );
+  }
+
+  // Saare circles ek line mein dikhao
   return (
     <div className="step-indicator">
-      {Array.from({ length: total }, (_, i) => (
-        <div
-          key={i}
-          className={"step-dot" + (i < current ? " done" : "") + (i === current ? " active" : "")}
-        >
-          {i < current ? "✓" : i + 1}
-        </div>
-      ))}
+      {circles}
     </div>
   );
 }
+
+export default StepIndicator;
