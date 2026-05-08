@@ -15,6 +15,8 @@ import {
 } from '../config';
 
 
+
+
 function RoleSelection({ setRole, setView }) {
 
   // ─── JAB PASSENGER BUTTON DABAYE ───
@@ -39,6 +41,8 @@ function RoleSelection({ setRole, setView }) {
           {APP_NAME} <span>{APP_TAG}</span>
         </div>
 
+
+        
         {/* Badi heading */}
         <h1>{WELCOME_HEADING}</h1>
 
