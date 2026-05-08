@@ -1,38 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet';
-
-// Component to handle map center updates
-function MapRefresher({ center }) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, map.getZoom());
-  }, [center, map]);
-  return null;
-}
+import React, { useState } from 'react';
+import SimpleMap from '../components/SimpleMap';
 
 export default function Dashboard({ role, name, handleLogout }) {
   const [isSignaling, setIsSignaling] = useState(false);
-  const [searchDots, setSearchDots] = useState([]);
-  const [mapCenter, setMapCenter] = useState([28.6139, 77.209]); // Delhi
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    
-    if (query.length > 2) {
-      // Create some red dots
-      const dots = [];
-      dots.push([mapCenter[0] + 0.002, mapCenter[1] + 0.002]);
-      dots.push([mapCenter[0] - 0.003, mapCenter[1] + 0.001]);
-      dots.push([mapCenter[0] + 0.001, mapCenter[1] - 0.004]);
-      setSearchDots(dots);
-    } else {
-      setSearchDots([]);
-    }
-  }
-
-  const toggleSignal = () => {
+  // Jab button click hoga, toh signal ON/OFF hoga
+  const buttonClicked = () => {
     if (isSignaling === true) {
       setIsSignaling(false);
     } else {
@@ -40,97 +13,56 @@ export default function Dashboard({ role, name, handleLogout }) {
     }
   }
 
-  // Very basic check for roles
-  let isPassenger = false;
-  if (role === 'passenger') {
-    isPassenger = true;
-  }
-
-  let signalButtonClass = "signal-btn";
-  if (isSignaling === true) {
-    signalButtonClass = signalButtonClass + " active";
-  }
-
   return (
     <div className="dashboard animate-fade">
+      
+      {/* 1. LEFT SIDE: MAP */}
       <div className="map-section">
-        <MapContainer center={mapCenter} zoom={15} className="map-frame">
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <MapRefresher center={mapCenter} />
-          
-          <Marker position={mapCenter} />
-          
-          {isSignaling === true && (
-            <Circle
-              center={mapCenter}
-              radius={200}
-              pathOptions={{ fillColor: '#eab308', color: '#eab308', fillOpacity: 0.3 }}
-            />
-          )}
-          
-          {searchDots.map(function(pos, idx) {
-            return (
-              <Circle
-                key={idx}
-                center={pos}
-                radius={30}
-                pathOptions={{ color: 'red', fillColor: 'red', fillOpacity: 0.8 }}
-              />
-            );
-          })}
-        </MapContainer>
+        {/* Map ka saara complex code maine SimpleMap.jsx me chupaa diya hai */}
+        <SimpleMap isSignaling={isSignaling} />
       </div>
 
+
+      {/* 2. RIGHT SIDE: MENU */}
       <div className="sidebar">
+        
+        {/* Logo and Logout */}
         <div className="sidebar-header">
-          <div className="brand">QuickRick</div>
-          <button className="logout-btn" onClick={handleLogout}>Sign Out</button>
+          <h2>QuickRick</h2>
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </div>
 
+        {/* User Details */}
         <div className="user-info">
-          <span className="label">Welcome back</span>
-          <div className="value">{name}</div>
-          <span 
-            className="role-badge" 
-            style={{ 
-              background: isPassenger ? 'var(--primary)' : 'var(--secondary)', 
-              color: isPassenger ? '#000' : '#fff' 
-            }}
-          >
-            {isPassenger ? '🧑‍💼 Passenger' : '🛺 Driver'}
-          </span>
+          <h3>Hi, {name}!</h3>
+          <p>You are a <b>{role}</b></p>
         </div>
 
-        {isPassenger === true ? (
+        <br />
+
+        {/* Agar user PASSENGER hai, toh yeh dikhao: */}
+        {role === "passenger" ? (
           <div>
-            <div className="input-group">
-              <label className="label">Search Destination</label>
-              <input
-                type="text"
-                placeholder="Where to?"
-                value={searchQuery}
-                onChange={handleSearch}
-              />
-            </div>
-            <button
-              className={signalButtonClass}
-              onClick={toggleSignal}
-            >
-              {isSignaling === true ? '● Signal Active' : '◉ Broadcast Signal'}
+            <p>Where do you want to go?</p>
+            <input type="text" placeholder="Enter destination..." />
+            
+            <br /><br />
+            
+            <button className="signal-btn" onClick={buttonClicked}>
+              {isSignaling === true ? "Stop Signal" : "Send Signal"}
             </button>
           </div>
-        ) : (
-          <div className="status-card driver-status">
-            <span className="label">Nearby Signals</span>
-            <div className="value">3 Passengers Active</div>
-          </div>
-        )}
+        ) : null}
 
-        <div className="status-card">
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Map shows your live location and nearby activities. Red dots appear when you search.
-          </p>
-        </div>
+
+        {/* Agar user DRIVER hai, toh yeh dikhao: */}
+        {role === "driver" ? (
+          <div className="status-card">
+            <h3>Nearby Rides</h3>
+            <p>3 Passengers are looking for a ride!</p>
+          </div>
+        ) : null}
+
       </div>
     </div>
   )
