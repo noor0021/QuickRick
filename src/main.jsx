@@ -9,6 +9,9 @@ import 'leaflet/dist/leaflet.css'
 
 // Apni custom CSS (design) wali file (styles.css) ko project me la rahe hain
 import './styles.css'
+import RoleSelectorPage from '../role-selector.jsx'
+import DriverDetailsPage from '../driver-details.jsx'
+import PassengerDetailsPage from '../passenger-details.jsx'
 
 // Leaflet library ko import kar rahe hain, jo map banane ke kaam aati hai
 import L from 'leaflet'
