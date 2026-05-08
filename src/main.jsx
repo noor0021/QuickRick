@@ -1,407 +1,184 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { MapContainer, CircleMarker, Popup, TileLayer, useMap } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
-import './styles.css'
-import RoleSelectorPage from '../role-selector.jsx'
-import DriverDetailsPage from '../driver-details.jsx'
-import PassengerDetailsPage from '../passenger-details.jsx'
+// ───────────────────────────────────────────
+// 📱 MAIN FILE — POORE APP KA CONTROL CENTER
+// ───────────────────────────────────────────
+// Yeh file sabse pehle chalti hai.
+// Isme 2 kaam hote hain:
+// 1. Saara data (states) yahan save hota hai
+// 2. Konsa page dikhana hai — yeh decide hota hai
 
-const demoOtp = '123456'
+// React library import karo (har file mein zaroori hai)
+import React, { useState } from 'react';
 
-const initialSignals = []
+// ReactDOM — yeh app ko browser pe dikhata hai
+import ReactDOM from 'react-dom/client';
 
-function formatPlace(place) {
-  if (!place) {
-    return 'Unknown place'
+// Map ki CSS file (bina iske map tut jayega)
+import 'leaflet/dist/leaflet.css';
+
+// Apni design file
+import './styles.css';
+
+// ─── MAP KA PIN FIX ───
+// React mein Leaflet ka pin apne aap nahi dikhta, isliye manually set karna padta hai
+import L from 'leaflet';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+var myIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+});
+L.Marker.prototype.options.icon = myIcon;
+
+// ─── CONFIG SE COLORS IMPORT ───
+// config.js mein jo colors set kiye hain, unhe yahan lao
+import {
+  COLOR_PRIMARY, COLOR_PRIMARY_HOVER, COLOR_BACKGROUND,
+  COLOR_CARD, COLOR_TEXT, COLOR_TEXT_DIM, COLOR_SUCCESS,
+  COLOR_DANGER, COLOR_BORDER
+} from './config';
+
+// ─── COLORS KO CSS MEIN LAGAO ───
+// Yeh code config.js ke colors ko poori app ki CSS mein set karta hai
+// Isse tum config.js mein color badloge toh poora app ka color badlega
+var style = document.documentElement.style;
+style.setProperty('--color-primary', COLOR_PRIMARY);
+style.setProperty('--color-primary-hover', COLOR_PRIMARY_HOVER);
+style.setProperty('--color-bg', COLOR_BACKGROUND);
+style.setProperty('--color-card', COLOR_CARD);
+style.setProperty('--color-text', COLOR_TEXT);
+style.setProperty('--color-text-dim', COLOR_TEXT_DIM);
+style.setProperty('--color-success', COLOR_SUCCESS);
+style.setProperty('--color-danger', COLOR_DANGER);
+style.setProperty('--color-border', COLOR_BORDER);
+
+// ─── SAARE PAGES IMPORT KARO ───
+// Har page ek alag file mein hai
+import RoleSelection from './pages/RoleSelection';
+import Signup from './pages/Signup';
+import OtpVerification from './pages/OtpVerification';
+import DocumentUpload from './pages/DocumentUpload';
+import Dashboard from './pages/Dashboard';
+
+
+// ═══════════════════════════════════════
+// APP FUNCTION — YAHI POORA APP HAI
+// ═══════════════════════════════════════
+function App() {
+
+  // ─── STATES (yaad rakhne wali cheezein) ───
+  
+  // "view" yaad rakhta hai ki ABHI konsa page dikhana hai
+  // Shuru mein "role" page dikhega (Passenger/Driver choose karo)
+  var [view, setView] = useState('role');
+
+  // User ne kya choose kiya — "passenger" ya "driver"
+  var [role, setRole] = useState('');
+
+  // User ka naam
+  var [name, setName] = useState('');
+
+  // User ka phone number
+  var [mobile, setMobile] = useState('');
+
+  // User ne OTP box mein kya type kiya
+  var [otp, setOtp] = useState('');
+
+  // Driver ka Aadhaar photo (shuru mein kuch nahi = null)
+  var [aadhaarFile, setAadhaarFile] = useState(null);
+
+  // Driver ka License photo
+  var [licenseFile, setLicenseFile] = useState(null);
+
+
+  // ─── LOGOUT FUNCTION ───
+  // Jab user "Logout" dabayega toh sab kuch mita do aur pehle page pe le jao
+  function handleLogout() {
+    setView('role');
+    setRole('');
+    setName('');
+    setMobile('');
+    setOtp('');
+    setAadhaarFile(null);
+    setLicenseFile(null);
   }
 
-  return place.split(',').slice(0, 2).join(', ')
+
+  // ═══════════════════════════════════════
+  // KONSA PAGE DIKHANA HAI — SIMPLE IF-ELSE
+  // ═══════════════════════════════════════
+
+  // Page 1: Role choose karo (Passenger ya Driver)
+  if (view === 'role') {
+    return (
+      <RoleSelection
+        setRole={setRole}
+        setView={setView}
+      />
+    );
+  }
+
+  // Page 2: Naam aur Mobile number bharo
+  if (view === 'signup') {
+    return (
+      <Signup
+        role={role}
+        name={name}
+        setName={setName}
+        mobile={mobile}
+        setMobile={setMobile}
+        setView={setView}
+        setRole={setRole}
+      />
+    );
+  }
+
+  // Page 3: OTP daalo
+  if (view === 'otp') {
+    return (
+      <OtpVerification
+        role={role}
+        mobile={mobile}
+        otp={otp}
+        setOtp={setOtp}
+        setView={setView}
+      />
+    );
+  }
+
+  // Page 4: Documents upload karo (sirf Driver ke liye)
+  if (view === 'documents') {
+    return (
+      <DocumentUpload
+        aadhaarFile={aadhaarFile}
+        setAadhaarFile={setAadhaarFile}
+        licenseFile={licenseFile}
+        setLicenseFile={setLicenseFile}
+        setView={setView}
+      />
+    );
+  }
+
+  // Page 5: Dashboard (Map + Menu)
+  if (view === 'dashboard') {
+    return (
+      <Dashboard
+        role={role}
+        name={name}
+        handleLogout={handleLogout}
+      />
+    );
+  }
+
+  // Agar galti se koi page match nahi hua toh Loading dikhao
+  return <div>Loading...</div>;
 }
 
-function MapMover({ currentPosition, destinationPosition, zoom }) {
-  const map = useMap()
 
-  React.useEffect(() => {
-    if (currentPosition && destinationPosition) {
-      map.fitBounds([currentPosition, destinationPosition], { padding: [40, 40] })
-      return
-    }
-
-    if (currentPosition) {
-      map.setView(currentPosition, zoom)
-    }
-  }, [map, currentPosition, destinationPosition, zoom])
-
-  return null
-}
-
-function SearchMapClick({ onPickLocation }) {
-  const map = useMap()
-
-  React.useEffect(() => {
-    function handleClick(event) {
-      onPickLocation([event.latlng.lat, event.latlng.lng])
-    }
-
-    map.on('click', handleClick)
-    return () => {
-      map.off('click', handleClick)
-    }
-  }, [map, onPickLocation])
-
-  return null
-}
-
-function Dashboard() {
-  const [view, setView] = React.useState('passenger')
-  const [currentPosition, setCurrentPosition] = React.useState([28.6139, 77.209])
-  const [currentPlace, setCurrentPlace] = React.useState('Tracking current location...')
-  const [destinationText, setDestinationText] = React.useState('')
-  const [destinationPlace, setDestinationPlace] = React.useState('')
-  const [destinationPosition, setDestinationPosition] = React.useState(null)
-  const [searchText, setSearchText] = React.useState('')
-  const [searchResults, setSearchResults] = React.useState([])
-  const [signals, setSignals] = React.useState(initialSignals)
-  const [infoText, setInfoText] = React.useState('Tap the map to pick a point or type a place.')
-  const [locating, setLocating] = React.useState(true)
-
-  React.useEffect(() => {
-    if (!navigator.geolocation) {
-      setLocating(false)
-      setInfoText('Location access is not available in this browser.')
-      return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const nextPosition = [position.coords.latitude, position.coords.longitude]
-        setCurrentPosition(nextPosition)
-        setLocating(false)
-        await fetchPlaceName(nextPosition, setCurrentPlace)
-      },
-      () => {
-        setLocating(false)
-        setInfoText('Location permission was denied, so the map stays on the default city.')
-      }
-    )
-  }, [])
-
-  async function fetchPlaceName(position, setPlace) {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${position[0]}&lon=${position[1]}`
-      )
-      const data = await response.json()
-      setPlace(formatPlace(data.display_name))
-    } catch {
-      setPlace('Current location')
-    }
-  }
-
-  async function searchPlace(query) {
-    const trimmedQuery = query.trim()
-
-    if (!trimmedQuery) {
-      setSearchResults([])
-      return
-    }
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&q=${encodeURIComponent(trimmedQuery)}`
-      )
-      const data = await response.json()
-      setSearchResults(data)
-    } catch {
-      setSearchResults([])
-    }
-  }
-
-  function selectPlace(place) {
-    const nextPosition = [Number(place.lat), Number(place.lon)]
-    setCurrentPosition(nextPosition)
-    setDestinationPlace(formatPlace(place.display_name))
-    setDestinationPosition([Number(place.lat), Number(place.lon)])
-    setDestinationText(`${currentPlace} → ${formatPlace(place.display_name)}`)
-    setSearchText(formatPlace(place.display_name))
-    setSearchResults([])
-    setInfoText(`Destination set to ${formatPlace(place.display_name)}`)
-  }
-
-  function pickMapLocation(position) {
-    setCurrentPosition(position)
-    setDestinationText('')
-    setDestinationPlace('')
-    setDestinationPosition(null)
-    fetchPlaceName(position, setCurrentPlace)
-    setInfoText('Map point selected. This is your current location.')
-  }
-
-  function toggleSignal() {
-    if (signals.length > 0) {
-      setSignals([])
-      setInfoText('Signal stopped.')
-      return
-    }
-
-    setSignals([
-      {
-        id: Date.now(),
-        position: currentPosition,
-        title: currentPlace || 'Passenger signal'
-      }
-    ])
-    setInfoText('Signal sent. Driver dashboard count updated instantly.')
-  }
-
-  const signalCount = signals.length
-  const isSignalOn = signalCount > 0
-  const dashboardTitle = view === 'passenger' ? 'Passenger dashboard' : 'Driver dashboard'
-  const rightPanelTitle = view === 'passenger' ? 'Where to?' : 'Live signals'
-
-  return (
-    <div className="dashboard-shell">
-      <header className="top-bar">
-        <div>
-          <p className="eyebrow">QuickRick</p>
-          <h1>{dashboardTitle}</h1>
-        </div>
-
-        <div className="mode-switch">
-          <button className={view === 'passenger' ? 'mode-button active' : 'mode-button'} onClick={() => setView('passenger')}>
-            Passenger
-          </button>
-          <button className={view === 'driver' ? 'mode-button active' : 'mode-button'} onClick={() => setView('driver')}>
-            Driver
-          </button>
-        </div>
-      </header>
-
-      <main className="dashboard-grid">
-        <section className="map-card map-card-big">
-          <MapContainer center={currentPosition} zoom={14} scrollWheelZoom className="map-frame">
-            <TileLayer
-              attribution='&copy; OpenStreetMap contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <MapMover currentPosition={currentPosition} destinationPosition={destinationPosition} zoom={14} />
-            <SearchMapClick onPickLocation={pickMapLocation} />
-
-            <CircleMarker center={currentPosition} radius={10} pathOptions={{ color: '#2563eb', fillColor: '#2563eb', fillOpacity: 1 }}>
-              <Popup>Current location</Popup>
-            </CircleMarker>
-
-            {destinationPosition ? (
-              <CircleMarker center={destinationPosition} radius={10} pathOptions={{ color: '#f97316', fillColor: '#f97316', fillOpacity: 1 }}>
-                <Popup>Destination</Popup>
-              </CircleMarker>
-            ) : null}
-
-            {signals.map((signal) => (
-              <CircleMarker key={signal.id} center={signal.position} radius={8} pathOptions={{ color: '#dc2626', fillColor: '#dc2626', fillOpacity: 1 }}>
-                <Popup>{signal.title}</Popup>
-              </CircleMarker>
-            ))}
-          </MapContainer>
-        </section>
-
-        <aside className="side-card">
-          <p className="section-label">{rightPanelTitle}</p>
-          <div className="mini-card">
-            <span className="mini-label">Driver sync</span>
-            <strong>{signalCount} signal{signalCount === 1 ? '' : 's'} live right now</strong>
-          </div>
-
-          {view === 'passenger' ? (
-            <>
-              <div className="mini-card">
-                <span className="mini-label">Current location</span>
-                <strong>{locating ? 'Getting location...' : currentPlace}</strong>
-              </div>
-
-              <div className="search-box">
-                <label htmlFor="destination">Where to?</label>
-                <input
-                  id="destination"
-                  value={searchText}
-                  onChange={(event) => {
-                    setSearchText(event.target.value)
-                    searchPlace(event.target.value)
-                  }}
-                  placeholder="Search a place"
-                />
-                {searchResults.length > 0 && (
-                  <div className="search-results">
-                    {searchResults.map((place) => (
-                      <button key={place.place_id} type="button" onClick={() => selectPlace(place)}>
-                        {formatPlace(place.display_name)}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="mini-card">
-                <span className="mini-label">Trip text</span>
-                <strong>{destinationText || `${currentPlace} → ${destinationPlace || 'Destination'}`}</strong>
-              </div>
-
-              <button className={isSignalOn ? 'signal-button signal-on' : 'signal-button'} onClick={toggleSignal}>
-                {isSignalOn ? 'Stop the signal' : 'Signal to auto'}
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="mini-card">
-                <span className="mini-label">Signal count</span>
-                <strong>{signalCount} signal{signalCount === 1 ? '' : 's'} aaya hai</strong>
-              </div>
-
-              <div className="mini-card">
-                <span className="mini-label">Current place</span>
-                <strong>{currentPlace}</strong>
-              </div>
-
-              <div className="driver-list">
-                {signals.length === 0 ? <p>No passenger signal right now.</p> : null}
-                {signals.map((signal) => (
-                  <div key={signal.id} className="driver-item">
-                    {signal.title}
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          <p className="status-box">{infoText}</p>
-          <p className="status-box subtle">{destinationPlace ? `Destination: ${destinationPlace}` : 'Tap map or search place'}</p>
-        </aside>
-      </main>
-    </div>
-  )
-}
-
-function AuthFlow() {
-  const [step, setStep] = React.useState('mobile')
-  const [mobile, setMobile] = React.useState('')
-  const [otpInput, setOtpInput] = React.useState('')
-  const [sentOtp, setSentOtp] = React.useState('')
-  const [message, setMessage] = React.useState('')
-
-  function sendOtp() {
-    if (mobile.trim().length !== 10) {
-      setMessage('Please enter a valid mobile number.')
-      return
-    }
-
-    const nextOtp = demoOtp
-    setSentOtp(nextOtp)
-    setStep('otp')
-    setMessage(`Demo OTP sent to ${mobile}.`)
-  }
-
-  function verifyOtp() {
-    if (otpInput.trim() === sentOtp) {
-      setStep('dashboard')
-      return
-    }
-
-    setMessage('OTP does not match. Try 123456.')
-  }
-
-  if (step === 'dashboard') {
-    return <Dashboard />
-  }
-
-  return (
-    <div className="auth-shell">
-      <div className="auth-card">
-        <p className="eyebrow">QuickRick</p>
-        <h1>{step === 'mobile' ? 'Enter mobile number' : 'Enter OTP'}</h1>
-        <p className="hero-text">
-          {step === 'mobile'
-            ? 'First enter your mobile number.'
-            : 'Now enter the OTP to open the dashboard.'}
-        </p>
-
-        {step === 'mobile' ? (
-          <>
-            <input
-              className="auth-input"
-              value={mobile}
-              onChange={(event) => {
-                const onlyDigits = event.target.value.replace(/\D/g, '')
-                setMobile(onlyDigits.slice(0, 10))
-              }}
-              inputMode="numeric"
-              maxLength={10}
-              placeholder="Mobile number"
-            />
-            <button className="primary-button auth-button" onClick={sendOtp}>
-              Send OTP
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="mini-card otp-box">
-              <span className="mini-label">Demo OTP</span>
-              <strong>{sentOtp}</strong>
-            </div>
-            <input
-              className="auth-input"
-              value={otpInput}
-              onChange={(event) => setOtpInput(event.target.value)}
-              placeholder="OTP"
-            />
-            <button className="primary-button auth-button" onClick={verifyOtp}>
-              Verify OTP
-            </button>
-          </>
-        )}
-
-        {message ? <p className="status-box">{message}</p> : null}
-      </div>
-    </div>
-  )
-}
-
-function AppRouter() {
-  const getRoute = React.useCallback(() => {
-    const hashPath = window.location.hash.replace('#', '')
-    return hashPath || window.location.pathname
-  }, [])
-
-  const [route, setRoute] = React.useState(getRoute)
-
-  React.useEffect(() => {
-    function handleRouteChange() {
-      setRoute(getRoute())
-    }
-
-    window.addEventListener('hashchange', handleRouteChange)
-    return () => {
-      window.removeEventListener('hashchange', handleRouteChange)
-    }
-  }, [getRoute])
-
-  if (route === '/role-selector') {
-    return <RoleSelectorPage />
-  }
-
-  if (route === '/driver-details') {
-    return <DriverDetailsPage />
-  }
-
-  if (route === '/passenger-details') {
-    return <PassengerDetailsPage />
-  }
-
-  return <AuthFlow />
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <AppRouter />
-  </React.StrictMode>
-)
+// ─── APP KO BROWSER MEIN DIKHAO ───
+// index.html mein ek <div id="root"> hai — usme App daal do
+var rootElement = document.getElementById('root');
+var root = ReactDOM.createRoot(rootElement);
+root.render(<App />);
